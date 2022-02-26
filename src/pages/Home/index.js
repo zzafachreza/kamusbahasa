@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StyleSheet,
+  Keyboard,
   Alert,
 } from 'react-native';
 import { TextInput, ScrollView } from 'react-native-gesture-handler';
@@ -57,23 +58,37 @@ const DataKategori = ({ icon, nama, onPress, img = require('../../assets/hospita
 
 export default function Home({ navigation }) {
 
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+
   const [data, setData] = useState([]);
+  const [jumlah, setJumlah] = useState(0);
   const [foto, setfoto] = useState('');
   const isFocused = useIsFocused();
 
   useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true); // or some other action
+        console.log('buka')
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false); // or some other action
+        console.log('tutup')
+      }
+    );
+    getDataKamus();
 
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
 
-    if (isFocused) {
-
-
-      getDataKamus();
-
-
-
-    }
-
-  }, [isFocused])
+  }, [])
 
 
 
@@ -81,92 +96,14 @@ export default function Home({ navigation }) {
     axios.post('https://zavalabs.com/kamus_bahasa/api/index.php', {
       key: x
     }).then(res => {
-      console.log(res.data)
+      console.warn(res.data);
+      setJumlah(res.data.length);
       setData(res.data);
     })
   }
 
 
-  const IndonesiaTgl = (tgl) => {
 
-    var bulan = [
-      "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-      "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-    ];
-
-    var _tanggal = new Date(tgl).getDate();
-    var _bulan = new Date(tgl).getMonth();
-    var _tahun = new Date(tgl).getFullYear();
-
-
-    return `${_tanggal} ${bulan[_bulan]} ${_tahun}`
-  }
-
-  const GetUmur = (tgl) => {
-    var today = new Date();
-    var birthday = new Date(tgl);
-    var year = 0;
-    if (today.getMonth() < birthday.getMonth()) {
-      year = 1;
-    } else if ((today.getMonth() == birthday.getMonth()) && today.getDate() < birthday.getDate()) {
-      year = 1;
-    }
-    var age = today.getFullYear() - birthday.getFullYear() - year;
-
-    if (age < 0) {
-      age = 0;
-    }
-
-    return age;
-  }
-
-  const GetPensiun = (tgl) => {
-    var today = new Date();
-    var birthday = new Date(tgl);
-    var year = 0;
-    if (today.getMonth() < birthday.getMonth()) {
-      year = 1;
-    } else if ((today.getMonth() == birthday.getMonth()) && today.getDate() < birthday.getDate()) {
-      year = 1;
-    }
-    var age = today.getFullYear() - birthday.getFullYear() - year;
-    var pensiun = '';
-
-    if (age < 0) {
-      age = 0;
-    }
-
-
-    if (age > 56) {
-      pensiun = 'Anda Sudah Pensiun';
-    } else {
-      pensiun = (56 - age);
-    }
-
-    return pensiun;
-  }
-
-
-  const MyTable = ({ label, value }) => {
-    return (
-      <View style={{
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.border
-      }}>
-        <Text style={{
-          fontFamily: fonts.secondary[600],
-          fontSize: windowWidth / 23,
-          color: colors.black
-        }}>{label}</Text>
-        <Text style={{
-          fontFamily: fonts.secondary[400],
-          fontSize: windowWidth / 23,
-          color: colors.black
-        }}>{value}</Text>
-      </View>
-    )
-  }
 
 
   return (
@@ -174,45 +111,48 @@ export default function Home({ navigation }) {
       <SafeAreaView
         style={{
           flex: 1,
-          padding: 10
         }}>
 
-        <View style={{ flexDirection: 'row', padding: 10 }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        {!isKeyboardVisible && <View style={{ flexDirection: 'row' }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.primary }}>
             <Image
               source={require('../../assets/logo.png')}
-              style={{ height: 80, resizeMode: 'contain', aspectRatio: 1 }}
+              style={{ height: 200, resizeMode: 'contain', aspectRatio: 1 }}
             />
 
-            <Text style={{
-              fontFamily: fonts.secondary[600],
-              fontSize: windowWidth / 20,
-              color: colors.black,
-              marginBottom: 10,
-            }}>Kamus Bahasa Serua</Text>
-            <Text style={{
-              fontFamily: fonts.secondary[600],
-              fontSize: windowWidth / 20,
-              color: colors.black
-            }}>Indonesia
-
-
-
-
-
-            </Text>
           </View>
-
-
-
         </View>
+        }
 
 
-        <View style={{ paddingHorizontal: 10 }}>
+        <View style={{ paddingHorizontal: 10, paddingTop: 10 }}>
           <MyInput label="Pencarian Kata Kunci" iconname="search" onChangeText={val => getDataKamus(val)} />
         </View>
+        {jumlah == 0 && (
+          <View style={{ padding: 15 }}>
+            <Text style={{
+              fontFamily: fonts.secondary[400],
+              fontSize: windowWidth / 25,
+              color: colors.black
+            }}>Data tidak ditemukan, silahkan cari kata yang lain...</Text>
+          </View>
+        )}
+
         <ScrollView>
+
+
           {data.map(item => {
+
+            let test = item.lema;
+            let sup = test.substring(0, 1);
+            let jenis = 0;
+
+            if (sup === '1' || sup === '2') {
+              jenis = 1;
+            } else {
+              jenis = 0;
+            }
+
 
 
             return (
@@ -222,8 +162,31 @@ export default function Home({ navigation }) {
                 // borderWidth: 1,
                 padding: 20,
               }}>
-                <Text>{item.lema}</Text>
-                <Text>{item.sublema}</Text>
+                <View style={{ flexDirection: 'row' }}>
+                  {jenis > 0 && <Text style={{ fontSize: windowWidth / 30, lineHeight: 18, color: colors.black }}>{sup}</Text>}
+                  {jenis == 0 && <Text style={{
+                    fontFamily: fonts.primary.normal,
+                    fontSize: windowWidth / 20,
+                    color: colors.black
+                  }}>{sup}</Text>}
+                  <Text style={{
+                    fontFamily: fonts.primary.normal,
+                    fontSize: windowWidth / 20,
+                    color: colors.black
+                  }}>
+
+                    {test.substring(1, test.length)}</Text>
+                </View>
+                <Text style={{
+                  fontFamily: fonts.secondary.normal,
+                  fontSize: windowWidth / 20,
+                  color: colors.black
+                }}>{item.sublema}</Text>
+                <Text style={{
+                  fontFamily: fonts.secondary.normal,
+                  fontSize: windowWidth / 20,
+                  color: colors.black
+                }}>{item.definisi}</Text>
               </TouchableOpacity>
             )
 
@@ -243,6 +206,14 @@ export default function Home({ navigation }) {
           }}>Beranda</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity onPress={() => navigation.navigate('Petunjuk')} style={{ width: 80, justifyContent: 'center', alignItems: 'center' }}>
+          <Icon type="ionicon" name="book-outline" color={colors.white} />
+          <Text style={{
+            fontFamily: fonts.secondary[400],
+            fontSize: windowWidth / 35,
+            color: colors.white
+          }}>Petunjuk</Text>
+        </TouchableOpacity>
 
 
 

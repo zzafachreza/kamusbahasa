@@ -68,23 +68,14 @@ export default function Splash({ navigation }) {
         style={
           {
             width: windowWidth,
-            height: 280,
+            height: 400,
             aspectRatio: 1,
             resizeMode: "contain"
           }
 
         }
       />
-      <Text style={{
-        fontFamily: fonts.secondary[600],
-        color: colors.white,
-        fontSize: windowWidth / 12
-      }}>Kamus Bahasa Serua</Text>
-      <Text style={{
-        fontFamily: fonts.secondary[600],
-        color: colors.white,
-        fontSize: windowWidth / 12
-      }}>Indonesia</Text>
+
     </View>
   );
 }

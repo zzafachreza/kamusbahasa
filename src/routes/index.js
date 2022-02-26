@@ -23,6 +23,7 @@ import {
   MenuPasutriAdd,
   MenuPendidikanAdd,
   MenuPelatihanAdd,
+  Petunjuk,
 } from '../pages';
 import { colors } from '../utils';
 import MenuPengalamanAdd from '../pages/MenuPengalamanAdd';
@@ -47,6 +48,19 @@ export default function Router() {
         options={{
           headerShown: true,
           headerTitle: 'Detail',
+          headerStyle: {
+            backgroundColor: colors.primary,
+          },
+          headerTintColor: '#fff',
+        }}
+      />
+
+      <Stack.Screen
+        name="Petunjuk"
+        component={Petunjuk}
+        options={{
+          headerShown: true,
+          headerTitle: 'Petunjuk Penggunaan',
           headerStyle: {
             backgroundColor: colors.primary,
           },

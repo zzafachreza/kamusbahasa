@@ -21,6 +21,9 @@ import MenuAnakAdd from './MenuAnakAdd';
 import MenuPasutriAdd from './MenuPasutriAdd';
 import MenuPendidikanAdd from './MenuPendidikanAdd';
 import MenuPelatihanAdd from './MenuPelatihanAdd';
+import Petunjuk from './Petunjuk';
+
+
 
 
 
@@ -33,6 +36,7 @@ import MenuPelatihanAdd from './MenuPelatihanAdd';
 export {
   Splash,
   Home,
+  Petunjuk,
   Login,
   MenuOrangTuaAdd,
   MenuOrangTuaEdit,
